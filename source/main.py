@@ -305,9 +305,6 @@ class App(ctk.CTk):
 
     def _refresh_voices(self):
         engine = self._get_engine()
-        # Для Edge можно было бы грузить полный список из сети,
-        # но чтобы не зависеть от API — оставим преднабор (быстро).
-        # Если хочешь онлайн-список — напишу доработку.
         self._load_voices_for_engine(engine)
         self._set_status("Список голосов обновлён")
 
