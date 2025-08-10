@@ -1,0 +1,539 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TTS Studio</title>
+  <meta name="description" content="A beautiful rounded neon site with animated glow, cards, and a Try It button." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg0: #050510;
+      --bg1: #0a0a22;
+      --text: #eaf2ff;
+      --muted: #9aa7bd;
+
+      /* Neon theme variables (will be changed by JS) */
+      --accent: #00E7F9;
+      --accent-2: #7C5CFF;
+
+      --radius: 18px;
+      --radius-lg: 26px;
+      --shadow-neon: 0 0 8px var(--accent), 0 0 22px color-mix(in srgb, var(--accent), transparent 30%);
+      --card-glass: rgba(255,255,255,0.06);
+      --card-border: color-mix(in srgb, var(--accent), transparent 75%);
+      --glow-outer: 0 0 20px color-mix(in srgb, var(--accent), transparent 20%),
+                    inset 0 0 0 1px color-mix(in srgb, var(--accent), transparent 75%);
+    }
+
+    /* Reset & base */
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font-family: "Outfit", system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(1200px 800px at 15% 10%, color-mix(in srgb, var(--accent), transparent 85%), transparent 45%),
+        radial-gradient(1000px 700px at 85% 90%, color-mix(in srgb, var(--accent-2), transparent 85%), transparent 45%),
+        linear-gradient(120deg, var(--bg0), var(--bg1) 65%, #070716 100%);
+      background-attachment: fixed;
+      overflow-x: hidden;
+    }
+
+    /* Animated soft gradient motion */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: -10vmax;
+      background:
+        radial-gradient(60vmax 40vmax at 10% 30%, color-mix(in srgb, var(--accent), transparent 93%), transparent 60%),
+        radial-gradient(55vmax 35vmax at 90% 70%, color-mix(in srgb, var(--accent-2), transparent 93%), transparent 60%);
+      filter: blur(40px) saturate(120%);
+      animation: drift 20s ease-in-out infinite alternate;
+      pointer-events: none;
+      z-index: -1;
+    }
+    @keyframes drift {
+      0%   { transform: translate3d(0,0,0) rotate(0.5deg) scale(1); }
+      100% { transform: translate3d(2vmax,-2vmax,0) rotate(-0.5deg) scale(1.05); }
+    }
+
+    /* Top nav */
+    .nav {
+      max-width: 1100px;
+      margin: 22px auto 0;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: var(--text);
+    }
+    .brand .logo {
+      width: 34px; height: 34px; border-radius: 12px;
+      background: radial-gradient(120% 120% at 30% 30%, var(--accent) 0 40%, transparent 65%),
+                  radial-gradient(120% 120% at 75% 70%, var(--accent-2) 0 40%, transparent 65%),
+                  #0a0a1e;
+      box-shadow: var(--glow-outer);
+    }
+    .brand span {
+      font-weight: 800;
+      letter-spacing: 0.3px;
+      font-size: 1.05rem;
+    }
+
+    .nav-actions {
+      display: flex; gap: 10px;
+    }
+
+    /* Buttons */
+    .btn {
+      appearance: none;
+      border: 1px solid var(--card-border);
+      border-radius: 999px;
+      padding: 12px 18px;
+      font-weight: 600;
+      color: var(--text);
+      background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03));
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      box-shadow: 0 1px 0 rgba(255,255,255,0.1) inset;
+      transition: transform .15s ease, box-shadow .2s ease, border-color .2s ease, background .2s ease;
+      cursor: pointer;
+    }
+    .btn:hover { transform: translateY(-1px); border-color: color-mix(in srgb, var(--accent), transparent 60%); }
+    .btn:active { transform: translateY(0); }
+
+    .btn-primary {
+      background:
+        linear-gradient(180deg, color-mix(in srgb, var(--accent), #fff 6%) 0%, color-mix(in srgb, var(--accent), #000 10%) 100%);
+      color: #061017;
+      border: none;
+      box-shadow: 0 6px 18px color-mix(in srgb, var(--accent), transparent 70%), inset 0 0 0 1px rgba(255,255,255,0.35);
+      text-shadow: 0 1px 0 rgba(255,255,255,0.3);
+    }
+    .btn-primary .glow-dot {
+      display: inline-block; width: 8px; height: 8px; margin-left: 8px; border-radius: 50%;
+      background: var(--accent); box-shadow: 0 0 12px var(--accent), 0 0 24px var(--accent);
+      vertical-align: middle;
+    }
+
+    /* Hero */
+    .hero {
+      max-width: 1100px;
+      margin: 56px auto 0;
+      padding: 0 20px 40px;
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 28px;
+      align-items: center;
+    }
+    @media (max-width: 900px) {
+      .hero { grid-template-columns: 1fr; }
+    }
+
+    .title {
+      font-size: clamp(2.2rem, 4.5vw, 4rem);
+      line-height: 1.05;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin: 8px 0 12px;
+      color: #eaf2ff;
+      text-wrap: balance;
+      text-shadow: 0 0 18px color-mix(in srgb, var(--accent), transparent 80%);
+    }
+    .title .neon {
+      color: var(--accent);
+      text-shadow: 0 0 6px var(--accent), 0 0 16px var(--accent), 0 0 36px color-mix(in srgb, var(--accent), transparent 35%);
+    }
+    .subtitle {
+      color: var(--muted);
+      font-size: clamp(1rem, 1.6vw, 1.15rem);
+      margin-bottom: 20px;
+    }
+    .hero-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+
+    /* Visual panel */
+    .panel {
+      position: relative;
+      background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.025));
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-lg);
+      padding: 14px;
+      box-shadow: var(--glow-outer);
+      overflow: hidden;
+      min-height: 280px;
+    }
+    .panel::before {
+      content: "";
+      position: absolute; inset: -20%;
+      background:
+        radial-gradient(50% 60% at 30% 30%, color-mix(in srgb, var(--accent), transparent 70%), transparent 60%),
+        radial-gradient(55% 60% at 75% 70%, color-mix(in srgb, var(--accent-2), transparent 70%), transparent 60%);
+      filter: blur(40px);
+      pointer-events: none;
+      opacity: .8;
+      animation: panelFloat 14s ease-in-out infinite alternate;
+    }
+    @keyframes panelFloat {
+      0% { transform: translate3d(-8px, 6px, 0) rotate(0.2deg) scale(1); }
+      100% { transform: translate3d(8px, -6px, 0) rotate(-0.2deg) scale(1.02); }
+    }
+
+    .panel-inner {
+      position: relative;
+      border-radius: calc(var(--radius-lg) - 10px);
+      height: 100%;
+      padding: 18px;
+      display: grid;
+      gap: 14px;
+    }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+    @media (max-width: 520px) {
+      .stats { grid-template-columns: 1fr 1fr; }
+    }
+    .stat {
+      --r: 16px;
+      border-radius: var(--r);
+      padding: 14px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+      border: 1px solid var(--card-border);
+      box-shadow: 0 0 1px rgba(255,255,255,0.3) inset, 0 12px 30px rgba(0,0,0,0.25);
+      transform-style: preserve-3d;
+      transform: rotateX(var(--rx, 0)) rotateY(var(--ry, 0));
+      transition: border-color .2s ease, box-shadow .2s ease;
+    }
+    .stat:hover { border-color: color-mix(in srgb, var(--accent), transparent 55%); box-shadow: var(--shadow-neon), 0 12px 30px rgba(0,0,0,0.25); }
+    .kpi {
+      font-weight: 800;
+      font-size: 1.6rem;
+      letter-spacing: -0.01em;
+      margin-bottom: 4px;
+      color: #f4f7ff;
+      text-shadow: 0 0 12px color-mix(in srgb, var(--accent), transparent 85%);
+    }
+    .kpi small { font-weight: 600; font-size: 0.8rem; margin-left: 8px; color: color-mix(in srgb, var(--accent), #fff 25%); }
+    .muted { color: var(--muted); font-size: 0.95rem; }
+
+    /* Features */
+    .section {
+      max-width: 1100px;
+      margin: 28px auto 80px;
+      padding: 0 20px;
+    }
+    .features {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+    @media (max-width: 900px) { .features { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 620px) { .features { grid-template-columns: 1fr; } }
+
+    .card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.025));
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-lg);
+      padding: 18px;
+      box-shadow: 0 10px 35px rgba(0,0,0,0.25);
+      transform-style: preserve-3d;
+      transform: rotateX(var(--rx, 0)) rotateY(var(--ry, 0));
+      transition: border-color .2s ease, box-shadow .2s ease;
+    }
+    .card:hover { border-color: color-mix(in srgb, var(--accent), transparent 55%); box-shadow: var(--shadow-neon), 0 10px 35px rgba(0,0,0,0.25); }
+    .icon {
+      width: 46px; height: 46px; border-radius: 14px;
+      display: inline-grid; place-items: center;
+      background:
+        linear-gradient(180deg, color-mix(in srgb, var(--accent), #fff 8%), color-mix(in srgb, var(--accent-2), #000 15%));
+      color: #061017;
+      box-shadow: 0 10px 28px color-mix(in srgb, var(--accent), transparent 70%), inset 0 0 0 1px rgba(255,255,255,0.4);
+      margin-bottom: 10px;
+    }
+    .card h3 { margin: 8px 0 6px; }
+    .card p { color: var(--muted); margin: 0; }
+
+    /* Footer */
+    .footer {
+      max-width: 1100px;
+      margin: 30px auto 50px;
+      padding: 0 20px;
+      display: flex; justify-content: space-between; align-items: center; gap: 10px;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+    @media (max-width: 700px) {
+      .footer { flex-direction: column; text-align: center; }
+    }
+
+    /* Neon click ripple + sparkles */
+    .burst {
+      position: fixed;
+      left: 0; top: 0;
+      width: 16px; height: 16px;
+      border-radius: 999px;
+      border: 2px solid var(--accent);
+      filter: drop-shadow(0 0 10px var(--accent));
+      transform: translate(-50%, -50%) scale(0.2);
+      opacity: .85;
+      pointer-events: none;
+      animation: burst 700ms ease-out forwards;
+      z-index: 1000;
+    }
+    @keyframes burst {
+      to { transform: translate(-50%, -50%) scale(16); opacity: 0; }
+    }
+
+    .spark {
+      position: fixed;
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 40% 40%, #fff 0 20%, var(--accent) 20% 60%, transparent 62%);
+      box-shadow: 0 0 10px var(--accent), 0 0 20px color-mix(in srgb, var(--accent), transparent 40%);
+      pointer-events: none;
+      z-index: 1000;
+      animation: spark 900ms ease-out forwards;
+    }
+    @keyframes spark {
+      to {
+        transform: translate(var(--dx), var(--dy)) scale(0.3) rotate(25deg);
+        opacity: 0;
+        filter: blur(0.5px);
+      }
+    }
+
+    /* Reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+      body::before, .panel::before, .burst, .spark { animation: none !important; }
+      .stat, .card { transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav" aria-label="Top">
+    <a class="brand" href="#" aria-label="Rounded Neon Home">
+      <div class="logo" aria-hidden="true"></div>
+      <span>Rounded Neon</span>
+    </a>
+    <div class="nav-actions">
+      <button class="btn" id="themeBtn" title="Cycle theme (T)">Change theme</button>
+      <a class="btn" href="#features">Features</a>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <div>
+      <h1 class="title">
+        Beautiful <span class="neon">Rounded Neon</span> UI
+      </h1>
+      <p class="subtitle">
+        A crisp, glowing aesthetic with smooth corners, glassy cards, and subtle motion. Tap the button to feel the spark.
+      </p>
+      <div class="hero-actions">
+        <button class="btn btn-primary" id="tryBtn" aria-label="Try it (fires neon burst)">
+          ⚡ Try it <span class="glow-dot"></span>
+        </button>
+        <button class="btn" id="altBtn">Get code</button>
+      </div>
+    </div>
+
+    <div class="panel" aria-hidden="true">
+      <div class="panel-inner">
+        <div class="stats">
+          <div class="stat tilt">
+            <div class="kpi">98% <small>smooth</small></div>
+            <div class="muted">Rounded edges with neon glow</div>
+          </div>
+          <div class="stat tilt">
+            <div class="kpi">+14k <small>FPS*</small></div>
+            <div class="muted">Okay not really, but it’s fast</div>
+          </div>
+          <div class="stat tilt">
+            <div class="kpi">∞ <small>themes</small></div>
+            <div class="muted">Cycle through glowing palettes</div>
+          </div>
+        </div>
+        <div class="muted" style="font-size:.85rem; opacity:.9;">
+          Pro tip: press “T” to change theme, or click anywhere for a ripple.
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="section" id="features">
+    <div class="features">
+      <div class="card tilt">
+        <div class="icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M12 2l3 7h7l-5.5 4 2.5 7-7-4.5L5 20l2.5-7L2 9h7l3-7z" fill="currentColor" opacity=".95"/>
+          </svg>
+        </div>
+        <h3>Neon Glow</h3>
+        <p>Soft-but-bright highlights, tasteful shadows, and glassy surfaces that make content pop.</p>
+      </div>
+
+      <div class="card tilt">
+        <div class="icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M3 12h18M12 3v18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <h3>Rounded Everything</h3>
+        <p>Cards and buttons with pill radii for a friendly, modern feel that still looks sharp.</p>
+      </div>
+
+      <div class="card tilt">
+        <div class="icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/>
+            <path d="M8 12l2.5 2.5L16 9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <h3>Interactive</h3>
+        <p>Hover tilt, click ripples, and theme cycling for playful micro-interactions.</p>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div>© <span id="year"></span> Rounded Neon. All glow, no glare.</div>
+    <div>Built with HTML, CSS, and a pinch of JS ✨</div>
+  </footer>
+
+  <script>
+    // Year
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    // Theme cycles
+    const themes = [
+      { accent: '#00E7F9', accent2: '#7C5CFF' },   // cyan + purple
+      { accent: '#39FF14', accent2: '#00D1FF' },   // neon green + cyan
+      { accent: '#FF2DAE', accent2: '#7B61FF' },   // pink + indigo
+      { accent: '#FFD166', accent2: '#06D6A0' },   // warm amber + mint
+      { accent: '#FF6B6B', accent2: '#3AE7AB' },   // coral + aqua
+    ];
+    let themeIndex = 0;
+    const root = document.documentElement;
+    function applyTheme(i) {
+      const t = themes[i % themes.length];
+      root.style.setProperty('--accent', t.accent);
+      root.style.setProperty('--accent-2', t.accent2);
+    }
+    applyTheme(themeIndex);
+
+    // Try button effects
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    function burstAt(x, y) {
+      if (reduceMotion) return;
+      const ripple = document.createElement('span');
+      ripple.className = 'burst';
+      ripple.style.left = x + 'px';
+      ripple.style.top = y + 'px';
+      document.body.appendChild(ripple);
+      ripple.addEventListener('animationend', () => ripple.remove(), { once: true });
+    }
+
+    function sparkles(x, y, count = 18) {
+      if (reduceMotion) return;
+      for (let i = 0; i < count; i++) {
+        const s = document.createElement('span');
+        s.className = 'spark';
+        const angle = (Math.PI * 2) * (i / count) + (Math.random() - 0.5) * 0.6;
+        const speed = 70 + Math.random() * 60;
+        const dx = Math.cos(angle) * speed;
+        const dy = Math.sin(angle) * speed;
+        s.style.left = x + 'px';
+        s.style.top = y + 'px';
+        s.style.setProperty('--dx', dx + 'px');
+        s.style.setProperty('--dy', dy + 'px');
+        document.body.appendChild(s);
+        s.addEventListener('animationend', () => s.remove(), { once: true });
+      }
+    }
+
+    function tryItAt(x, y) {
+      burstAt(x, y);
+      sparkles(x, y, 24);
+      themeIndex = (themeIndex + 1) % themes.length;
+      applyTheme(themeIndex);
+    }
+
+    // Button bindings
+    const tryBtn = document.getElementById('tryBtn');
+    tryBtn.addEventListener('click', (e) => {
+      const rect = e.currentTarget.getBoundingClientRect();
+      tryItAt(rect.left + rect.width/2, rect.top + rect.height/2);
+      // cheerful bounce
+      tryBtn.animate(
+        [{ transform: 'translateY(0)' }, { transform: 'translateY(-3px)' }, { transform: 'translateY(0)' }],
+        { duration: 260, easing: 'ease-out' }
+      );
+    });
+
+    // Change theme button
+    document.getElementById('themeBtn').addEventListener('click', () => {
+      themeIndex = (themeIndex + 1) % themes.length;
+      applyTheme(themeIndex);
+    });
+
+    // Keyboard shortcut (T)
+    window.addEventListener('keydown', (e) => {
+      if (e.key.toLowerCase() === 't') {
+        const x = window.innerWidth / 2;
+        const y = window.innerHeight / 2;
+        tryItAt(x, y);
+      }
+    });
+
+    // Click anywhere for a ripple
+    window.addEventListener('pointerdown', (e) => {
+      // avoid double-firing when button clicked (handled above)
+      if (e.target.closest('#tryBtn, #themeBtn, .btn')) return;
+      burstAt(e.clientX, e.clientY);
+    });
+
+    // Tilt effect on hover
+    const tiltables = document.querySelectorAll('.tilt, .card');
+    tiltables.forEach(el => {
+      el.addEventListener('pointermove', (e) => {
+        const r = el.getBoundingClientRect();
+        const x = (e.clientX - r.left) / r.width;
+        const y = (e.clientY - r.top) / r.height;
+        const rx = (0.5 - y) * 10; // tilt range
+        const ry = (x - 0.5) * 12;
+        el.style.setProperty('--rx', rx + 'deg');
+        el.style.setProperty('--ry', ry + 'deg');
+      });
+      el.addEventListener('pointerleave', () => {
+        el.style.setProperty('--rx', '0deg');
+        el.style.setProperty('--ry', '0deg');
+      });
+    });
+
+    // “Get code” button copies the page URL
+    document.getElementById('altBtn').addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(location.href);
+        const label = 'Copied URL!';
+        const prev = document.getElementById('altBtn').textContent;
+        document.getElementById('altBtn').textContent = label;
+        setTimeout(() => (document.getElementById('altBtn').textContent = 'Get code'), 1200);
+      } catch (e) {
+        alert('Copy failed — right click the address bar to copy the URL.');
+      }
+    });
+  </script>
+</body>
+  </html>
